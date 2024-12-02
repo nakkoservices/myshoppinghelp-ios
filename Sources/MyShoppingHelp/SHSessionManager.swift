@@ -142,7 +142,7 @@ import KeychainSwift
     
 }
 
-extension SHSessionManager {
+public extension SHSessionManager {
     
     static let sessionDidChange: Notification.Name = .init("SHSessionManagerSessionDidChange")
     
