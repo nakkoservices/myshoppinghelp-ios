@@ -56,7 +56,11 @@ import KeychainSwift
         return try? decode(jwt: currentToken).subject
     }
     
-    private init() {
+    private init() { }
+    
+    func configure(configuration: SHManagerConfiguration) {
+        self.configuration = configuration
+        
         do {
             if let sessionString = keychain.get("ShoppingHelpSession"),
                let sessionData = Data(base64Encoded: sessionString),
@@ -70,10 +74,6 @@ import KeychainSwift
             print("Could not resume SH session. Reason: \(error.localizedDescription)")
             self.currentSession = nil
         }
-    }
-    
-    func configure(configuration: SHManagerConfiguration) {
-        self.configuration = configuration
     }
     
     private func setIsBusy(_ isBusy: Bool) {
