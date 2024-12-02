@@ -5,10 +5,10 @@
 //  Created by Mihai Fratu on 02.12.2024.
 //
 
-struct SHManagerConfiguration {
+public struct SHManagerConfiguration {
     
-    let clientId: String
-    let appGroupId: String?
-    let redirectUrlProtocol: String?
+    public let clientId: String
+    public let appGroupId: String?
+    public let redirectUrlProtocol: String?
     
 }

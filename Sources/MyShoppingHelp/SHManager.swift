@@ -8,62 +8,62 @@
 import Foundation
 import OSLog
 
-struct SHList: Decodable, Identifiable {
+public struct SHList: Decodable, Identifiable {
     
-    let id: String
-    let ref: SHRef
-    let items: [SHListItem]?
-    
-}
-
-struct SHListCreatePayload: Encodable {
-    
-    let ref: SHRef
+    public let id: String
+    public let ref: SHRef
+    public let items: [SHListItem]?
     
 }
 
-enum SHItemType: String, Codable {
+public struct SHListCreatePayload: Encodable {
+    
+    public let ref: SHRef
+    
+}
+
+public enum SHItemType: String, Codable {
     case recipe
 }
 
-struct SHListItem: Decodable, Identifiable {
+public struct SHListItem: Decodable, Identifiable {
     
-    let id: String
-    let ref: SHRef
-    let type: SHItemType
-    let name: String
-    let url: URL?
-    let imageUrl: URL?
-    let attributes: [String: String]?
-    
-}
-
-struct SHListItemCreatePayload: Encodable {
-    
-    let ref: SHRef
-    let type: SHItemType
-    let name: String
-    let url: URL?
-    let imageUrl: URL?
-    let attributes: [String: String]?
+    public let id: String
+    public let ref: SHRef
+    public let type: SHItemType
+    public let name: String
+    public let url: URL?
+    public let imageUrl: URL?
+    public let attributes: [String: String]?
     
 }
 
-enum SHRefType: String, Decodable {
+public struct SHListItemCreatePayload: Encodable {
+    
+    public let ref: SHRef
+    public let type: SHItemType
+    public let name: String
+    public let url: URL?
+    public let imageUrl: URL?
+    public let attributes: [String: String]?
+    
+}
+
+public enum SHRefType: String, Decodable {
     case list
     case weekmenu
     case recipe = "wprm_recipe"
 }
 
-struct SHRef: Codable, Hashable {
+public struct SHRef: Codable, Hashable {
     
     private let value: String
-    let hostname: String
-    let type: SHRefType
-    let id: String
-    let suffix: String?
+    public let hostname: String
+    public let type: SHRefType
+    public let id: String
+    public let suffix: String?
     
-    init(hostname: String? = nil, type: SHRefType, id: String = "default", suffix: String? = nil) {
+    public init(hostname: String? = nil, type: SHRefType, id: String = "default", suffix: String? = nil) {
         self.hostname = hostname ?? ""
         self.type = type
         self.id = id
@@ -77,7 +77,7 @@ struct SHRef: Codable, Hashable {
         }
     }
     
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         self.value = try container.decode(String.self)
         let components = value.split(separator: ":", omittingEmptySubsequences: false).map { String($0) }
@@ -97,16 +97,16 @@ struct SHRef: Codable, Hashable {
         suffix = components.count > 5 ? components[5] : nil
     }
     
-    func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(value)
     }
     
 }
 
-@MainActor class SHManager: ObservableObject {
+@MainActor public class SHManager: ObservableObject {
     
-    static func shared(with configuration: SHManagerConfiguration) -> SHManager {
+    public static func shared(with configuration: SHManagerConfiguration) -> SHManager {
         .init(configuration: configuration)
     }
     
@@ -126,21 +126,21 @@ struct SHRef: Codable, Hashable {
         SHSessionManager.shared.configure(configuration: configuration)
     }
     
-    func getLists() async throws -> [SHList] {
+    public func getLists() async throws -> [SHList] {
         guard let currentUserId = SHSessionManager.shared.currentUserId else {
             throw SHManager.Error.notAuthorized
         }
         return try await getData(at: "lists", queryItems: [.init(name: "userId", value: currentUserId)])
     }
     
-    func getList(listId: SHList.ID) async throws -> SHList {
+    public func getList(listId: SHList.ID) async throws -> SHList {
         guard SHSessionManager.shared.isLoggedIn else {
             throw SHManager.Error.notAuthorized
         }
         return try await getData(at: "lists/\(listId)")
     }
     
-    func createList(ref: SHRef) async throws -> SHList.ID {
+    public func createList(ref: SHRef) async throws -> SHList.ID {
         guard SHSessionManager.shared.isLoggedIn else {
             throw SHManager.Error.notAuthorized
         }
@@ -149,21 +149,21 @@ struct SHRef: Codable, Hashable {
         return result.id
     }
     
-    func deleteList(listId: SHList.ID) async throws {
+    public func deleteList(listId: SHList.ID) async throws {
         guard SHSessionManager.shared.isLoggedIn else {
             throw SHManager.Error.notAuthorized
         }
         try await getData(at: "lists/\(listId)", httpMethod: "DELETE")
     }
     
-    func add(item: SHListItemCreatePayload, to listId: SHList.ID) async throws {
+    public func add(item: SHListItemCreatePayload, to listId: SHList.ID) async throws {
         guard SHSessionManager.shared.isLoggedIn else {
             throw SHManager.Error.notAuthorized
         }
         try await getData(at: "lists/\(listId)/items", httpMethod: "POST", payload: item)
     }
     
-    func remove(itemId: SHListItem.ID, from listId: SHList.ID) async throws {
+    public func remove(itemId: SHListItem.ID, from listId: SHList.ID) async throws {
         guard SHSessionManager.shared.isLoggedIn else {
             throw SHManager.Error.notAuthorized
         }
@@ -274,7 +274,7 @@ struct SHRef: Codable, Hashable {
     
 }
 
-extension SHManager {
+public extension SHManager {
     
     enum Error: Swift.Error {
         case notAuthorized
@@ -285,7 +285,7 @@ extension SHManager {
 
 #if DEBUG
 
-extension URLRequest {
+fileprivate extension URLRequest {
     
     var curlDebugString: String {
         guard let url = url else { return "" }

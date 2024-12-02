@@ -10,7 +10,7 @@ import AppAuth
 import JWTDecode
 import KeychainSwift
 
-@MainActor class SHSessionManager: ObservableObject {
+@MainActor public class SHSessionManager: ObservableObject {
     
     static let shared = SHSessionManager()
     
@@ -43,15 +43,15 @@ import KeychainSwift
     
     private(set) var currentAuthorizationFlow: OIDExternalUserAgentSession? = nil
     
-    var isLoggedIn: Bool {
+    public var isLoggedIn: Bool {
         currentSession?.isAuthorized ?? false
     }
     
-    var currentToken: String? {
+    public var currentToken: String? {
         currentSession?.lastTokenResponse?.accessToken
     }
     
-    var currentUserId: String? {
+    public var currentUserId: String? {
         guard let currentToken else { return nil }
         return try? decode(jwt: currentToken).subject
     }
@@ -86,7 +86,7 @@ import KeychainSwift
         self.isBusy = isBusy
     }
     
-    func tryLogin(with presentingViewController: UIViewController) {
+    public func tryLogin(with presentingViewController: UIViewController) {
         guard let clientId = configuration?.clientId else { return }
         guard let redirectUrlProtocol = configuration?.redirectUrlProtocol else { return }
         guard let issuer = URL(string: "https://auth.myshopping.help") else { return }
@@ -129,7 +129,7 @@ import KeychainSwift
         return false
     }
     
-    func logout() {
+    public func logout() {
         currentSession = nil
     }
     
