@@ -12,7 +12,7 @@ import KeychainSwift
 
 @MainActor public class SHSessionManager: ObservableObject {
     
-    static let shared = SHSessionManager()
+    public static let shared = SHSessionManager()
     
     private var configuration: SHManagerConfiguration? = nil
     
