@@ -35,7 +35,13 @@ import KeychainSwift
             else {
                 keychain.delete("ShoppingHelpSession")
             }
-            objectWillChange.send()
+            
+            if oldValue == nil, currentSession != nil {
+                NotificationCenter.default.post(name: SHSessionManager.sessionDidChange, object: self)
+            }
+            else if oldValue != nil, currentSession == nil {
+                NotificationCenter.default.post(name: SHSessionManager.sessionDidChange, object: self)
+            }
         }
     }
     
@@ -72,6 +78,7 @@ import KeychainSwift
             }
         } catch {
             print("Could not resume SH session. Reason: \(error.localizedDescription)")
+            NotificationCenter.default.post(name: SHSessionManager.sessionDidChange, object: self)
             self.currentSession = nil
         }
     }
@@ -132,5 +139,11 @@ import KeychainSwift
     public func logout() {
         currentSession = nil
     }
+    
+}
+
+extension SHSessionManager {
+    
+    static let sessionDidChange: Notification.Name = .init("SHSessionManagerSessionDidChange")
     
 }
