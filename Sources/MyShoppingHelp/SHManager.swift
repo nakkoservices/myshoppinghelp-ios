@@ -20,6 +20,10 @@ public struct SHListCreatePayload: Encodable {
     
     public let ref: SHRef
     
+    public init(ref: SHRef) {
+        self.ref = ref
+    }
+    
 }
 
 public enum SHItemType: String, Codable {
@@ -35,6 +39,16 @@ public struct SHListItem: Decodable, Identifiable {
     public let url: URL?
     public let imageUrl: URL?
     public let attributes: [String: String]?
+    
+    public init(id: String, ref: SHRef, type: SHItemType, name: String, url: URL?, imageUrl: URL?, attributes: [String : String]?) {
+        self.id = id
+        self.ref = ref
+        self.type = type
+        self.name = name
+        self.url = url
+        self.imageUrl = imageUrl
+        self.attributes = attributes
+    }
     
 }
 
