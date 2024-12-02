@@ -11,4 +11,10 @@ public struct SHManagerConfiguration {
     public let appGroupId: String?
     public let redirectUrlProtocol: String?
     
+    public init(clientId: String, appGroupId: String? = nil, redirectUrlProtocol: String? = nil) {
+        self.clientId = clientId
+        self.appGroupId = appGroupId
+        self.redirectUrlProtocol = redirectUrlProtocol
+    }
+    
 }
