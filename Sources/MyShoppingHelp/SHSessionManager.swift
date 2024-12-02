@@ -121,7 +121,7 @@ import KeychainSwift
         setIsBusy(false)
     }
     
-    func resumeExternalUserAgentFlow(with url: URL) -> Bool {
+    public func resumeExternalUserAgentFlow(with url: URL) -> Bool {
         if currentAuthorizationFlow?.resumeExternalUserAgentFlow(with: url) ?? false {
             currentAuthorizationFlow = nil
             return true
