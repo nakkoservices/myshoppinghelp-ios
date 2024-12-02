@@ -39,7 +39,7 @@ import KeychainSwift
         }
     }
     
-    @Published private(set) var isBusy: Bool = false
+    @Published public private(set) var isBusy: Bool = false
     
     private(set) var currentAuthorizationFlow: OIDExternalUserAgentSession? = nil
     
