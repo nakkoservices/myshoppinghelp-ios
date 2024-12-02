@@ -22,7 +22,7 @@ import KeychainSwift
         return keychain
     }()
     
-    @Published private(set) var currentSession: OIDAuthState? = nil {
+    @Published public private(set) var currentSession: OIDAuthState? = nil {
         didSet {
             if let currentSession {
                 do {
