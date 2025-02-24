@@ -107,11 +107,11 @@ public struct SHRef: Codable, Hashable {
         
         // Make sure the ref is in the correct format: "nrn:msh:{hostname}:{type}:{id}:{optional-suffix}"
         guard (5...6).contains(components.count), components[0] == "nrn", components[1] == "msh" else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid SHRef format")
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid SHRef format: \(value).")
         }
         
         guard let refType = SHRefType(rawValue: components[3]) else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid SHRefType value")
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid SHRefType value: \(components[3]).")
         }
         
         hostname = components[2]
