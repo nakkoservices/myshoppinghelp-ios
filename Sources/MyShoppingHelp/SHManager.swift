@@ -11,7 +11,7 @@ import OSLog
 public struct SHList: Decodable, Identifiable {
     
     public let id: String
-    public let ref: SHRef
+    public let ref: SHRef?
     public let items: [SHListItem]?
     
 }
@@ -33,14 +33,14 @@ public enum SHItemType: String, Codable {
 public struct SHListItem: Decodable, Identifiable {
     
     public let id: String
-    public let ref: SHRef
+    public let ref: SHRef?
     public let type: SHItemType
     public let name: String
     public let url: URL?
     public let imageUrl: URL?
     public let attributes: [String: String]?
     
-    public init(id: String, ref: SHRef, type: SHItemType, name: String, url: URL?, imageUrl: URL?, attributes: [String : String]?) {
+    public init(id: String, ref: SHRef?, type: SHItemType, name: String, url: URL?, imageUrl: URL?, attributes: [String : String]?) {
         self.id = id
         self.ref = ref
         self.type = type
