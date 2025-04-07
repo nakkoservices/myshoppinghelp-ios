@@ -19,9 +19,11 @@ public struct SHList: Decodable, Identifiable {
 public struct SHListCreatePayload: Encodable {
     
     public let ref: SHRef
+    public let uniqueItems: Bool
     
-    public init(ref: SHRef) {
+    public init(ref: SHRef, uniqueItems: Bool = true) {
         self.ref = ref
+        self.uniqueItems = uniqueItems
     }
     
 }
@@ -163,12 +165,12 @@ public struct SHRef: Codable, Hashable {
         return try await getData(at: "lists/\(listId)")
     }
     
-    public func createList(ref: SHRef) async throws -> SHList.ID {
+    public func createList(ref: SHRef, withUniqueItems uniqueItems: Bool = true) async throws -> SHList.ID {
         guard SHSessionManager.shared.isLoggedIn else {
             throw SHManager.Error.notAuthorized
         }
         struct CreateListResult: Decodable { let id: SHList.ID }
-        let result: CreateListResult = try await getData(at: "lists", httpMethod: "POST", payload: SHListCreatePayload(ref: ref))
+        let result: CreateListResult = try await getData(at: "lists", httpMethod: "POST", payload: SHListCreatePayload(ref: ref, uniqueItems: uniqueItems))
         return result.id
     }
     
