@@ -8,6 +8,17 @@
 import Foundation
 import OSLog
 
+private struct FailableDecodable<T: Decodable>: Decodable {
+    
+    let value: T?
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self.value = try? container.decode(T.self)
+    }
+    
+}
+
 public struct SHList: Decodable, Identifiable {
     
     public let id: String
@@ -28,7 +39,7 @@ public struct SHList: Decodable, Identifiable {
         var decodedItems: [SHListItem] = []
         if var itemsContainer = try? container.nestedUnkeyedContainer(forKey: .items) {
             while !itemsContainer.isAtEnd {
-                if let decodedItem = try? itemsContainer.decode(SHListItem.self) {
+                if let decodedItem = try itemsContainer.decode(FailableDecodable<SHListItem>.self).value {
                     decodedItems.append(decodedItem)
                 }
             }
