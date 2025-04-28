@@ -14,6 +14,27 @@ public struct SHList: Decodable, Identifiable {
     public let ref: SHRef?
     public let items: [SHListItem]?
     
+    enum CodingKeys: CodingKey {
+        case id
+        case ref
+        case items
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.ref = try container.decodeIfPresent(SHRef.self, forKey: .ref)
+        
+        var decodedItems: [SHListItem] = []
+        var itemsContainer = try container.nestedUnkeyedContainer(forKey: .items)
+        while !itemsContainer.isAtEnd {
+            if let decodedItem = try? itemsContainer.decode(SHListItem.self) {
+                decodedItems.append(decodedItem)
+            }
+        }
+        self.items = decodedItems
+    }
+    
 }
 
 public struct SHListCreatePayload: Encodable {
