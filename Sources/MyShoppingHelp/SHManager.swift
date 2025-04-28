@@ -26,13 +26,14 @@ public struct SHList: Decodable, Identifiable {
         self.ref = try container.decodeIfPresent(SHRef.self, forKey: .ref)
         
         var decodedItems: [SHListItem] = []
-        var itemsContainer = try container.nestedUnkeyedContainer(forKey: .items)
-        while !itemsContainer.isAtEnd {
-            if let decodedItem = try? itemsContainer.decode(SHListItem.self) {
-                decodedItems.append(decodedItem)
+        if var itemsContainer = try? container.nestedUnkeyedContainer(forKey: .items) {
+            while !itemsContainer.isAtEnd {
+                if let decodedItem = try? itemsContainer.decode(SHListItem.self) {
+                    decodedItems.append(decodedItem)
+                }
             }
         }
-        self.items = decodedItems
+        self.items = decodedItems.isEmpty ? nil : decodedItems
     }
     
 }
