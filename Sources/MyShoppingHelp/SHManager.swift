@@ -111,6 +111,13 @@ public enum SHRefType: String, Decodable {
     case list
     case weekmenu
     case recipe = "wprm_recipe"
+    case unkown
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self = (try? container.decode(Self.self)) ?? .unkown
+    }
+    
 }
 
 public struct SHRef: Codable, Hashable {
