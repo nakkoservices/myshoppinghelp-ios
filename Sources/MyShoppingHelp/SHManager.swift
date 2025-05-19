@@ -152,12 +152,8 @@ public struct SHRef: Codable, Hashable {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid SHRef format: \(value).")
         }
         
-        guard let refType = SHRefType(rawValue: components[3]) else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid SHRefType value: \(components[3]).")
-        }
-        
         hostname = components[2]
-        type = refType
+        type = SHRefType(rawValue: components[3]) ?? .unkown
         id = components[4]
         suffix = components.count > 5 ? components[5] : nil
     }
