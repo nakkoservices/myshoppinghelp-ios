@@ -191,7 +191,8 @@ public struct SHRef: Codable, Hashable {
         guard let currentUserId = SHSessionManager.shared.currentUserId else {
             throw SHManager.Error.notAuthorized
         }
-        return try await getData(at: "lists", queryItems: [.init(name: "userId", value: currentUserId)])
+        let listsWrappers: [FailableDecodable<SHList>] = try await getData(at: "lists", queryItems: [.init(name: "userId", value: currentUserId)])
+        return listsWrappers.compactMap { $0.value }
     }
     
     public func getList(listId: SHList.ID) async throws -> SHList {
