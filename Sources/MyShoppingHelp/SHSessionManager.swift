@@ -10,7 +10,7 @@ import AppAuth
 import JWTDecode
 import KeychainSwift
 
-@MainActor public class SHSessionManager: ObservableObject {
+public class SHSessionManager: ObservableObject, @unchecked Sendable {
     
     public static let shared = SHSessionManager()
     
