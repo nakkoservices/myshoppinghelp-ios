@@ -95,23 +95,24 @@ public class SHSessionManager: ObservableObject, @unchecked Sendable {
     
     public func tryLogin(with presentingViewController: UIViewController) {
         guard let clientId = configuration?.clientId else { return }
-        guard let redirectUrlProtocol = configuration?.redirectUrlProtocol else { return }
+        guard let shoppingHelpConfiguration = configuration else { return }
         guard let issuer = URL(string: "https://auth.myshopping.help") else { return }
+        let redirectUri = "\(shoppingHelpConfiguration.redirectUrlProtocol)://\(shoppingHelpConfiguration.redirectUrlPath)"
         setIsBusy(true)
         OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) { [weak self] configuration, error in
             guard let configuration else {
                 self?.setIsBusy(false)
                 return
             }
-            self?.loginConfigurationFetched(configuration, for: presentingViewController, with: clientId, and: redirectUrlProtocol)
+            self?.loginConfigurationFetched(configuration, for: presentingViewController, with: clientId, and: redirectUri)
         }
     }
     
-    private func loginConfigurationFetched(_ configuration: OIDServiceConfiguration, for presentingViewController: UIViewController, with clientId: String, and redirectUrlProtocol: String) {
+    private func loginConfigurationFetched(_ configuration: OIDServiceConfiguration, for presentingViewController: UIViewController, with clientId: String, and redirectUri: String) {
         let request = OIDAuthorizationRequest(configuration: configuration,
                                               clientId: clientId,
                                               scopes: [OIDScopeOpenID, OIDScopeEmail, OIDScopeProfile],
-                                              redirectURL: URL(string: "\(redirectUrlProtocol)://msh/callback")!,
+                                              redirectURL: URL(string: redirectUri)!,
                                               responseType: OIDResponseTypeCode,
                                               nonce: nil,
                                               additionalParameters: nil)
