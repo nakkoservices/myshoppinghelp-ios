@@ -179,7 +179,7 @@ public struct SHRecipeMetadata: Decodable {
     
     public enum ObjectType: String, Decodable {
         case other
-        case recipe
+        case recipe = "Recipe"
         
         public init?(rawValue: String) {
             switch rawValue {
@@ -205,15 +205,27 @@ public struct SHRecipeMetadata: Decodable {
         }
     }
     
+    public struct RecipeInstruction: Decodable {
+        let text: String
+    }
+    
     public struct Object: Decodable {
         
         private enum CodingKeys: String, CodingKey {
             case type = "@type"
             case id = "@id"
+            case image
+            case name
+            case recipeIngredient
+            case recipeInstructions
         }
         
         public let type: ObjectType
         public let id: String
+        public let image: URL?
+        public let name: String?
+        public let recipeIngredient: [String]?
+        public let recipeInstructions: [SHRecipeMetadata.RecipeInstruction]?
         
     }
     
