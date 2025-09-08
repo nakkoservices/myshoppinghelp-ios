@@ -190,9 +190,14 @@ public struct SHRecipeMetadata: Decodable {
         
         public init(from decoder: any Decoder) throws {
             let container = try decoder.singleValueContainer()
-            guard let rawValue = try? container.decode(String.self), let type = Self(rawValue: rawValue) else {
-                throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "ObjectType could not be initialized"))
+            guard let rawValue = try? container.decode(String.self) else {
+                throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "@type is not a string!"))
             }
+            
+            guard let type = Self(rawValue: rawValue) else {
+                throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "ObjectType could not be initialized from value: \(rawValue)"))
+            }
+            
             self = type
         }
     }
