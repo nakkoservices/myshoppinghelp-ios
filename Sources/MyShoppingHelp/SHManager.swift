@@ -214,15 +214,37 @@ public struct SHRecipeMetadata: Decodable {
         private enum CodingKeys: String, CodingKey {
             case type = "@type"
             case id = "@id"
-            case image
+            case _image = "image"
             case name
             case recipeIngredient
             case recipeInstructions
         }
         
+        private struct ArrayOrURL: Decodable {
+            private let _value: (any Sendable)?
+            var value: URL? { _value as? URL ?? (_value as? [URL])?.first }
+            init(from decoder: any Decoder) throws {
+                if let container = try? decoder.singleValueContainer(),
+                   let decoded = try? container.decode([URL].self),
+                   !decoded.isEmpty {
+                    self._value = decoded
+                }
+                else if var container = try? decoder.unkeyedContainer() {
+                    self._value = try? container.decode(URL.self)
+                }
+                else {
+                    self._value = nil
+                }
+            }
+            
+        }
+        
         public let type: ObjectType
         public let id: String
-        public let image: URL?
+        
+        private let _image: ArrayOrURL?
+        public var image: URL? { _image?.value }
+        
         public let name: String?
         public let recipeIngredient: [String]?
         public let recipeInstructions: [SHRecipeMetadata.RecipeInstruction]?
