@@ -12,11 +12,11 @@ public struct SHManagerConfiguration {
     public let redirectUrlProtocol: String
     public let redirectUrlPath: String
     
-    public init(clientId: String, appGroupId: String? = nil, redirectUrlProtocol: String, redirectUrlPath: String) {
+    public init(clientId: String, appGroupId: String? = nil, redirectUrlProtocol: String, redirectUrlPath: String?) {
         self.clientId = clientId
         self.appGroupId = appGroupId
         self.redirectUrlProtocol = redirectUrlProtocol
-        self.redirectUrlPath = redirectUrlPath
+        self.redirectUrlPath = redirectUrlPath ?? "msh/callback"
     }
     
 }
