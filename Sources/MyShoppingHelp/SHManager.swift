@@ -53,9 +53,11 @@ public struct SHListCreatePayload: Encodable {
     
     public let ref: SHRef
     public let uniqueItems: Bool
+    public var name: String
     
     public init(ref: SHRef, uniqueItems: Bool = true) {
         self.ref = ref
+        self.name = ref.type.rawValue
         self.uniqueItems = uniqueItems
     }
     
