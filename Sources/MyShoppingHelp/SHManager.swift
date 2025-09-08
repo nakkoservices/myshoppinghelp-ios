@@ -165,6 +165,52 @@ public struct SHRef: Codable, Hashable {
     
 }
 
+public struct SHRecipeMetadata: Decodable {
+    
+    public let id: String
+    public let url: URL
+    public let authority: String
+    public let title: String
+    private let objects: [Object]
+    
+    public var recipeInfo: Object? {
+        objects.first(where: { $0.type == .recipe })
+    }
+    
+    public enum ObjectType: String, Decodable {
+        case other
+        case recipe
+        
+        public init?(rawValue: String) {
+            switch rawValue {
+            case ObjectType.recipe.rawValue: self = .recipe
+            default: self = .other
+            }
+        }
+        
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            guard let rawValue = try? container.decode(String.self), let type = Self(rawValue: rawValue) else {
+                throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "ObjectType could not be initialized"))
+            }
+            self = type
+        }
+    }
+    
+    public struct Object: Decodable {
+        
+        private enum CodingKeys: String, CodingKey {
+            case type = "@type"
+            case id = "@id"
+        }
+        
+        public let type: ObjectType
+        public let id: String
+        
+    }
+    
+}
+
 @MainActor public class SHManager: ObservableObject {
     
     public static func shared(with configuration: SHManagerConfiguration) -> SHManager {
@@ -230,6 +276,10 @@ public struct SHRef: Codable, Hashable {
             throw SHManager.Error.notAuthorized
         }
         try await getData(at: "lists/\(listId)/items/\(itemId)", httpMethod: "DELETE")
+    }
+    
+    public func getRecipeMetadata(for url: URL) async throws -> SHRecipeMetadata? {
+        try await getData(at: "metadata", queryItems: [.init(name: "url", value: url.absoluteString)])
     }
     
     private func getData<T: Decodable>(at path: String, queryItems: [URLQueryItem] = [], httpMethod: String = "GET", payload: (any Encodable)? = nil) async throws -> T {
