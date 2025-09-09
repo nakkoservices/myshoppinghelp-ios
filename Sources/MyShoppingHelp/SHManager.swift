@@ -199,6 +199,11 @@ public struct SHRecipeMetadata: Decodable {
             case totalTime
             case recipeCategory
             case recipeCuisine
+            case calories
+            case carbohydrateContent
+            case fatContent
+            case fiberContent
+            case proteinContent
         }
         
         public let name: String?
@@ -209,6 +214,11 @@ public struct SHRecipeMetadata: Decodable {
         public let totalTime: String?
         public let recipeCategory: String?
         public let recipeCuisine: String?
+        public let calories: String?
+        public let carbohydrateContent: String?
+        public let fatContent: String?
+        public let fiberContent: String?
+        public let proteinContent: String?
         
         public init(from decoder: any Decoder) throws {
             var arrayContainer = try decoder.unkeyedContainer()
@@ -255,6 +265,12 @@ public struct SHRecipeMetadata: Decodable {
                     return (try? objectContainer.decodeIfPresent([String].self, forKey: .recipeCuisine))?.joined(separator: ",")
                 }()
                 
+                let calories = try? objectContainer.decodeIfPresent(String.self, forKey: .calories)
+                let carbohydrateContent = try? objectContainer.decodeIfPresent(String.self, forKey: .calories)
+                let fatContent = try? objectContainer.decodeIfPresent(String.self, forKey: .calories)
+                let fiberContent = try? objectContainer.decodeIfPresent(String.self, forKey: .calories)
+                let proteinContent = try? objectContainer.decodeIfPresent(String.self, forKey: .calories)
+                
                 metadata = .init(name: name,
                                  description: description,
                                  image: image,
@@ -262,7 +278,12 @@ public struct SHRecipeMetadata: Decodable {
                                  cookTime: cookTime,
                                  totalTime: totalTime,
                                  recipeCategory: recipeCategory,
-                                 recipeCuisine: recipeCuisine)
+                                 recipeCuisine: recipeCuisine,
+                                 calories: calories,
+                                 carbohydrateContent: carbohydrateContent,
+                                 fatContent: fatContent,
+                                 fiberContent: fiberContent,
+                                 proteinContent: proteinContent)
             }
             
             guard let metadata else {
@@ -272,7 +293,7 @@ public struct SHRecipeMetadata: Decodable {
             self = metadata
         }
         
-        private init(name: String?, description: String?, image: URL?, prepTime: String?, cookTime: String?, totalTime: String?, recipeCategory: String?, recipeCuisine: String?) {
+        private init(name: String?, description: String?, image: URL?, prepTime: String?, cookTime: String?, totalTime: String?, recipeCategory: String?, recipeCuisine: String?, calories: String?, carbohydrateContent: String?, fatContent: String?, fiberContent: String?, proteinContent: String?) {
             self.name = name
             self.description = description
             self.image = image
@@ -281,6 +302,11 @@ public struct SHRecipeMetadata: Decodable {
             self.totalTime = totalTime
             self.recipeCategory = recipeCategory
             self.recipeCuisine = recipeCuisine
+            self.calories = calories
+            self.carbohydrateContent = carbohydrateContent
+            self.fatContent = fatContent
+            self.fiberContent = fiberContent
+            self.proteinContent = proteinContent
         }
         
     }
