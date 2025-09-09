@@ -215,7 +215,6 @@ public struct SHRecipeMetadata: Decodable {
         
         private enum CodingKeys: String, CodingKey {
             case type = "@type"
-            case id = "@id"
             case _image = "image"
             case name
             case description
@@ -250,7 +249,6 @@ public struct SHRecipeMetadata: Decodable {
         }
         
         public let type: ObjectType
-        public let id: String
         
         private let _image: ArrayOrURL?
         public var image: URL? { _image?.value }
