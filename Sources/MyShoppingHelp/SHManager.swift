@@ -218,8 +218,14 @@ public struct SHRecipeMetadata: Decodable {
             case id = "@id"
             case _image = "image"
             case name
+            case description
             case recipeIngredient
             case recipeInstructions
+            case prepTime
+            case cookTime
+            case customTime
+            case customTimeLabel
+            case totalTime
         }
         
         private struct ArrayOrURL: Decodable {
@@ -248,8 +254,15 @@ public struct SHRecipeMetadata: Decodable {
         public var image: URL? { _image?.value }
         
         public let name: String?
+        public let description: String?
         public let recipeIngredient: [String]?
         public let recipeInstructions: [SHRecipeMetadata.RecipeInstruction]?
+        
+        public let prepTime: String?
+        public let cookTime: String?
+        public let customTime: String?
+        public let customTimeLabel: String?
+        public let totalTime: String?
         
     }
     
