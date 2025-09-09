@@ -201,14 +201,14 @@ public struct SHRecipeMetadata: Decodable {
             case recipeCuisine
         }
         
-        let name: String?
-        let description: String?
-        let image: URL?
-        let prepTime: String?
-        let cookTime: String?
-        let totalTime: String?
-        let recipeCategory: String?
-        let recipeCuisine: String?
+        public let name: String?
+        public let description: String?
+        public let image: URL?
+        public let prepTime: String?
+        public let cookTime: String?
+        public let totalTime: String?
+        public let recipeCategory: String?
+        public let recipeCuisine: String?
         
         public init(from decoder: any Decoder) throws {
             var arrayContainer = try decoder.unkeyedContainer()
