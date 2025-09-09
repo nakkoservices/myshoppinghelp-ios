@@ -216,10 +216,10 @@ public struct SHRecipeMetadata: Decodable {
             
             while !arrayContainer.isAtEnd && metadata == nil {
                 let objectContainer = try arrayContainer.nestedContainer(keyedBy: ObjectCodingKeys.self)
-                let type = try objectContainer.decodeIfPresent(String.self, forKey: .type)
                 
                 // Make sure this is a recipe object
-                guard type == "Recipe" else { continue }
+                guard let type = try? objectContainer.decodeIfPresent(String.self, forKey: .type),
+                      type == "Recipe" else { continue }
                 
                 let name = try? objectContainer.decodeIfPresent(String.self, forKey: .name)
                 let description = try? objectContainer.decodeIfPresent(String.self, forKey: .description)
