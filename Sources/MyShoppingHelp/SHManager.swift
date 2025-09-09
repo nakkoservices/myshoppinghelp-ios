@@ -219,6 +219,8 @@ public struct SHRecipeMetadata: Decodable {
             case _image = "image"
             case name
             case description
+            case recipeCategory
+            case recipeCuisine
             case recipeIngredient
             case recipeInstructions
             case prepTime
@@ -255,6 +257,9 @@ public struct SHRecipeMetadata: Decodable {
         
         public let name: String?
         public let description: String?
+        
+        public let recipeCategory: String?
+        public let recipeCuisine: String?
         public let recipeIngredient: [String]?
         public let recipeInstructions: [SHRecipeMetadata.RecipeInstruction]?
         
