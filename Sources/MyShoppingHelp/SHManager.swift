@@ -169,103 +169,119 @@ public struct SHRef: Codable, Hashable {
 
 public struct SHRecipeMetadata: Decodable {
     
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case url
+        case authority
+        case title
+        case metadata = "objects"
+    }
+    
     public let id: String
     public let url: URL
     public let authority: String
     public let title: String
-    private let objects: [Object]
+    public let metadata: Metadata?
     
-    public var recipeInfo: Object? {
-        objects.first(where: { $0.type == .recipe })
-    }
-    
-    public enum ObjectType: String, Decodable {
-        case other
-        case recipe = "Recipe"
+    public struct Metadata: Decodable {
         
-        public init?(rawValue: String) {
-            switch rawValue {
-            case ObjectType.recipe.rawValue: self = .recipe
-            default: self = .other
-            }
+        private struct Image: Decodable {
+            let url: URL?
         }
         
-        public init(from decoder: any Decoder) throws {
-            let container = try decoder.singleValueContainer()
-            
-            guard let rawValue = try? container.decode(String.self) else {
-                self = .other
-                return
-            }
-            
-            guard let type = Self(rawValue: rawValue) else {
-                self = .other
-                return
-            }
-            
-            self = type
-        }
-    }
-    
-    public struct RecipeInstruction: Decodable {
-        let text: String
-    }
-    
-    public struct Object: Decodable {
-        
-        private enum CodingKeys: String, CodingKey {
+        private enum ObjectCodingKeys: String, CodingKey {
             case type = "@type"
-            case _image = "image"
             case name
             case description
-            case recipeCategory
-            case recipeCuisine
-            case recipeIngredient
-            case recipeInstructions
+            case image
             case prepTime
             case cookTime
-            case customTime
-            case customTimeLabel
             case totalTime
+            case recipeCategory
+            case recipeCuisine
         }
         
-        private struct ArrayOrURL: Decodable {
-            private let _value: (any Sendable)?
-            var value: URL? { _value as? URL ?? (_value as? [URL])?.first }
-            init(from decoder: any Decoder) throws {
-                if let container = try? decoder.singleValueContainer(),
-                   let decoded = try? container.decode([URL].self),
-                   !decoded.isEmpty {
-                    self._value = decoded
-                }
-                else if var container = try? decoder.unkeyedContainer() {
-                    self._value = try? container.decode(URL.self)
-                }
-                else {
-                    self._value = nil
-                }
+        let name: String?
+        let description: String?
+        let image: URL?
+        let prepTime: String?
+        let cookTime: String?
+        let totalTime: String?
+        let recipeCategory: String?
+        let recipeCuisine: String?
+        
+        public init(from decoder: any Decoder) throws {
+            var arrayContainer = try decoder.unkeyedContainer()
+            var metadata: Metadata? = nil
+            
+            while !arrayContainer.isAtEnd && metadata == nil {
+                let objectContainer = try arrayContainer.nestedContainer(keyedBy: ObjectCodingKeys.self)
+                let type = try objectContainer.decodeIfPresent(String.self, forKey: .type)
+                
+                // Make sure this is a recipe object
+                guard type == "Recipe" else { continue }
+                
+                let name = try? objectContainer.decodeIfPresent(String.self, forKey: .name)
+                let description = try? objectContainer.decodeIfPresent(String.self, forKey: .description)
+                
+                let image: URL? = {
+                    if let image = try? objectContainer.decodeIfPresent(URL.self, forKey: .image) {
+                        return image
+                    }
+                    else if let images = try? objectContainer.decodeIfPresent([URL].self, forKey: .image), let image = images.first {
+                        return image
+                    }
+                    else if let image = try? objectContainer.decodeIfPresent(Image.self, forKey: .image) {
+                        return image.url
+                    }
+                    return nil
+                }()
+                
+                let prepTime = try? objectContainer.decodeIfPresent(String.self, forKey: .prepTime)
+                let cookTime = try? objectContainer.decodeIfPresent(String.self, forKey: .cookTime)
+                let totalTime = try? objectContainer.decodeIfPresent(String.self, forKey: .totalTime)
+                
+                let recipeCategory: String? = {
+                    if let recipeCategory = try? objectContainer.decodeIfPresent(String.self, forKey: .recipeCategory) {
+                        return recipeCategory
+                    }
+                    return (try? objectContainer.decodeIfPresent([String].self, forKey: .recipeCategory))?.joined(separator: ",")
+                }()
+                
+                let recipeCuisine: String? = {
+                    if let recipeCuisine = try? objectContainer.decodeIfPresent(String.self, forKey: .recipeCuisine) {
+                        return recipeCuisine
+                    }
+                    return (try? objectContainer.decodeIfPresent([String].self, forKey: .recipeCuisine))?.joined(separator: ",")
+                }()
+                
+                metadata = .init(name: name,
+                                 description: description,
+                                 image: image,
+                                 prepTime: prepTime,
+                                 cookTime: cookTime,
+                                 totalTime: totalTime,
+                                 recipeCategory: recipeCategory,
+                                 recipeCuisine: recipeCuisine)
             }
             
+            guard let metadata else {
+                throw DecodingError.valueNotFound(Metadata.self, .init(codingPath: decoder.codingPath, debugDescription: "Could not find or decode object with type Recipe"))
+            }
+            
+            self = metadata
         }
         
-        public let type: ObjectType
-        
-        private let _image: ArrayOrURL?
-        public var image: URL? { _image?.value }
-        
-        public let name: String?
-        public let description: String?
-        
-        public let recipeCategory: String?
-        public let recipeCuisine: String?
-        public let recipeIngredient: [String]?
-        public let recipeInstructions: [SHRecipeMetadata.RecipeInstruction]?
-        
-        public let prepTime: String?
-        public let cookTime: String?
-        public let customTime: String?
-        public let customTimeLabel: String?
-        public let totalTime: String?
+        private init(name: String?, description: String?, image: URL?, prepTime: String?, cookTime: String?, totalTime: String?, recipeCategory: String?, recipeCuisine: String?) {
+            self.name = name
+            self.description = description
+            self.image = image
+            self.prepTime = prepTime
+            self.cookTime = cookTime
+            self.totalTime = totalTime
+            self.recipeCategory = recipeCategory
+            self.recipeCuisine = recipeCuisine
+        }
         
     }
     
