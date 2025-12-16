@@ -348,12 +348,12 @@ public struct SHRecipeMetadata: Decodable {
         return try await getData(at: "lists/\(listId)")
     }
     
-    public func createList(ref: SHRef, withUniqueItems uniqueItems: Bool = true) async throws -> SHList.ID {
+    public func createList(ref: SHRef, withUniqueItems uniqueItems: Bool = true, checkboxes: Bool = false, quantities: Bool = false) async throws -> SHList.ID {
         guard SHSessionManager.shared.isLoggedIn else {
             throw SHManager.Error.notAuthorized
         }
         struct CreateListResult: Decodable { let id: SHList.ID }
-        let result: CreateListResult = try await getData(at: "lists", httpMethod: "POST", payload: SHListCreatePayload(ref: ref, uniqueItems: uniqueItems))
+        let result: CreateListResult = try await getData(at: "lists", httpMethod: "POST", payload: SHListCreatePayload(ref: ref, uniqueItems: uniqueItems, checkboxes: checkboxes, quantities: quantities))
         return result.id
     }
     
