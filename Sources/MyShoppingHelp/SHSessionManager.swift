@@ -48,6 +48,7 @@ public class SHSessionManager: ObservableObject, @unchecked Sendable {
     @Published public private(set) var isBusy: Bool = false
     
     private(set) var currentAuthorizationFlow: OIDExternalUserAgentSession? = nil
+    private var currentAuthorizationFlowCompletionBlock: ((Bool) -> Void)? = nil
     
     public var isLoggedIn: Bool {
         currentSession?.isAuthorized ?? false
@@ -93,14 +94,21 @@ public class SHSessionManager: ObservableObject, @unchecked Sendable {
         self.isBusy = isBusy
     }
     
-    public func tryLogin(with presentingViewController: UIViewController) {
+    private func didLogin(_ success: Bool) {
+        currentAuthorizationFlowCompletionBlock?(success)
+        currentAuthorizationFlowCompletionBlock = nil
+    }
+    
+    public func tryLogin(with presentingViewController: UIViewController, completion: ((Bool) -> Void)?) {
         guard let clientId = configuration?.clientId else { return }
         guard let shoppingHelpConfiguration = configuration else { return }
         guard let issuer = URL(string: "https://auth.myshopping.help") else { return }
         let redirectUri = "\(shoppingHelpConfiguration.redirectUrlProtocol)://\(shoppingHelpConfiguration.redirectUrlPath)"
         setIsBusy(true)
+        currentAuthorizationFlowCompletionBlock = completion
         OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) { [weak self] configuration, error in
             guard let configuration else {
+                self?.didLogin(false)
                 self?.setIsBusy(false)
                 return
             }
@@ -122,9 +130,11 @@ public class SHSessionManager: ObservableObject, @unchecked Sendable {
     private func loginFlowDidFinish(_ state: OIDAuthState?, _ error: Error?) {
         if let state {
             currentSession = state
+            didLogin(true)
         }
         else if let error {
             print(error)
+            didLogin(false)
         }
         setIsBusy(false)
     }
