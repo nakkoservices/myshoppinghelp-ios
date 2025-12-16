@@ -53,12 +53,16 @@ public struct SHListCreatePayload: Encodable {
     
     public let ref: SHRef
     public let uniqueItems: Bool
+    public let checkboxes: Bool
+    public let quantities: Bool
     public var name: String
     
-    public init(ref: SHRef, uniqueItems: Bool = true) {
+    public init(ref: SHRef, uniqueItems: Bool = true, checkboxes: Bool = false, quantities: Bool = false) {
         self.ref = ref
         self.name = ref.type.rawValue
         self.uniqueItems = uniqueItems
+        self.checkboxes = checkboxes
+        self.quantities = quantities
     }
     
 }
@@ -75,15 +79,19 @@ public struct SHListItem: Decodable, Identifiable {
     public let name: String
     public let url: URL?
     public let imageUrl: URL?
+    public let checked: Bool?
+    public let quantity: Double?
     public let attributes: [String: String]?
     
-    public init(id: String, ref: SHRef?, type: SHItemType, name: String, url: URL?, imageUrl: URL?, attributes: [String : String]?) {
+    public init(id: String, ref: SHRef?, type: SHItemType, name: String, url: URL?, imageUrl: URL?, checked: Bool? = nil, quantity: Double? = nil, attributes: [String : String]?) {
         self.id = id
         self.ref = ref
         self.type = type
         self.name = name
         self.url = url
         self.imageUrl = imageUrl
+        self.checked = checked
+        self.quantity = quantity
         self.attributes = attributes
     }
     
@@ -111,8 +119,10 @@ public struct SHListItemCreatePayload: Encodable {
 
 public enum SHRefType: String, Decodable {
     case list
-    case weekmenu
     case recipe = "wprm_recipe"
+    case weekmenu
+    case shoppinglist
+    case ingredient
     case unkown
     
     public init(from decoder: any Decoder) throws {
