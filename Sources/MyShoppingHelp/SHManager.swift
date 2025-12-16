@@ -122,6 +122,32 @@ public struct SHListItemCreatePayload: Encodable {
     
 }
 
+public struct SHListItemUpdatePayload: Encodable {
+    
+    public let id: String
+    public let ref: SHRef?
+    public let type: SHItemType
+    public let name: String
+    public let url: URL?
+    public let imageUrl: URL?
+    public let checked: Bool?
+    public let quantity: Double?
+    public let attributes: [String: String]?
+    
+    public init(id: String, ref: SHRef?, type: SHItemType, name: String, url: URL?, imageUrl: URL?, checked: Bool? = nil, quantity: Double? = nil, attributes: [String : String]?) {
+        self.id = id
+        self.ref = ref
+        self.type = type
+        self.name = name
+        self.url = url
+        self.imageUrl = imageUrl
+        self.checked = checked
+        self.quantity = quantity
+        self.attributes = attributes
+    }
+    
+}
+
 public enum SHRefType: String, Decodable {
     case list
     case recipe = "wprm_recipe"
@@ -373,6 +399,13 @@ public struct SHRecipeMetadata: Decodable {
             throw SHManager.Error.notAuthorized
         }
         try await getData(at: "lists/\(listId)/items", httpMethod: "POST", payload: item)
+    }
+    
+    public func update(item: SHListItemUpdatePayload, in listId: SHList.ID) async throws {
+        guard SHSessionManager.shared.isLoggedIn else {
+            throw SHManager.Error.notAuthorized
+        }
+        try await getData(at: "lists/\(listId)/items/\(item.id)", httpMethod: "PUT", payload: item)
     }
     
     public func remove(itemId: SHListItem.ID, from listId: SHList.ID) async throws {
