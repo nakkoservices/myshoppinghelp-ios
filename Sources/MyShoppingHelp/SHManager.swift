@@ -341,10 +341,13 @@ public struct SHRecipeMetadata: Decodable {
     
 }
 
-@MainActor public class SHManager: ObservableObject {
+public actor SHManager: ObservableObject {
     
-    public static func shared(with configuration: SHManagerConfiguration) -> SHManager {
-        .init(configuration: configuration)
+    public static let shared = SHManager()
+    
+    @MainActor public static func shared(with configuration: SHManagerConfiguration) -> SHManager {
+        shared.configure(configuration: configuration)
+        return shared
     }
     
     #if DEBUG
@@ -359,7 +362,7 @@ public struct SHRecipeMetadata: Decodable {
     }
     #endif
     
-    private init(configuration: SHManagerConfiguration) {
+    @MainActor public func configure(configuration: SHManagerConfiguration) {
         SHSessionManager.shared.configure(configuration: configuration)
     }
     
