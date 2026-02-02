@@ -19,7 +19,7 @@ private struct FailableDecodable<T: Decodable>: Decodable {
     
 }
 
-public struct SHList: Decodable, Identifiable {
+public struct SHList: Decodable, Identifiable, Sendable {
     
     public let id: String
     public let ref: SHRef?
@@ -49,7 +49,7 @@ public struct SHList: Decodable, Identifiable {
     
 }
 
-public struct SHListCreatePayload: Encodable {
+public struct SHListCreatePayload: Encodable, Sendable {
     
     public let ref: SHRef
     public let uniqueItems: Bool
@@ -67,12 +67,12 @@ public struct SHListCreatePayload: Encodable {
     
 }
 
-public enum SHItemType: String, Codable {
+public enum SHItemType: String, Codable, Sendable {
     case recipe
     case ingredient
 }
 
-public struct SHListItem: Decodable, Identifiable {
+public struct SHListItem: Decodable, Identifiable, Sendable {
     
     public let id: String
     public let ref: SHRef?
@@ -98,7 +98,7 @@ public struct SHListItem: Decodable, Identifiable {
     
 }
 
-public struct SHListItemCreatePayload: Encodable {
+public struct SHListItemCreatePayload: Encodable, Sendable {
     
     public let ref: SHRef?
     public let type: SHItemType
@@ -122,7 +122,7 @@ public struct SHListItemCreatePayload: Encodable {
     
 }
 
-public struct SHListItemUpdatePayload: Encodable {
+public struct SHListItemUpdatePayload: Encodable, Sendable {
     
     public let id: String
     public let ref: SHRef?
@@ -148,7 +148,7 @@ public struct SHListItemUpdatePayload: Encodable {
     
 }
 
-public enum SHRefType: String, Decodable {
+public enum SHRefType: String, Decodable, Sendable {
     case list
     case recipe = "wprm_recipe"
     case weekmenu
@@ -162,7 +162,7 @@ public enum SHRefType: String, Decodable {
     
 }
 
-public struct SHRef: Codable, Hashable {
+public struct SHRef: Codable, Hashable, Sendable {
     
     private let value: String
     public let hostname: String
@@ -422,7 +422,9 @@ public actor SHManager: ObservableObject {
         try await getData(at: "metadata", queryItems: [.init(name: "url", value: url.absoluteString)])
     }
     
-    private func getData<T: Decodable>(at path: String, queryItems: [URLQueryItem] = [], httpMethod: String = "GET", payload: (any Encodable)? = nil) async throws -> T {
+    typealias Payload = Encodable & Sendable
+    
+    private func getData<T: Decodable>(at path: String, queryItems: [URLQueryItem] = [], httpMethod: String = "GET", payload: (any Payload)? = nil) async throws -> T {
         let (data, request) = try await getData(at: path, queryItems: queryItems, httpMethod: httpMethod, payload: payload)
         do {
             return try JSONDecoder().decode(T.self, from: data)
@@ -438,7 +440,7 @@ public actor SHManager: ObservableObject {
     }
     
     @concurrent @discardableResult
-    private func getData(at path: String, queryItems: [URLQueryItem] = [], httpMethod: String = "GET", payload: (any Encodable)? = nil) async throws -> (Data, URLRequest) {
+    private func getData(at path: String, queryItems: [URLQueryItem] = [], httpMethod: String = "GET", payload: (any Payload)? = nil) async throws -> (Data, URLRequest) {
         let accessToken: String = try await withCheckedThrowingContinuation { continuation in
             SHSessionManager.shared.currentSession?.performAction(freshTokens: { accessToken, refreshToken, error in
                 if let error {
@@ -484,7 +486,7 @@ public actor SHManager: ObservableObject {
             var debugString = "\n\n--- \(startDate)"
             debugString += "\nGetting data:\n"
             debugString += request.curlDebugString
-            log(string: debugString, logType: .default)
+            await log(string: debugString, logType: .default)
         #endif
         
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -495,7 +497,7 @@ public actor SHManager: ObservableObject {
             debugString += "\nGot data for: \(request.httpMethod!) - \(request.url?.absoluteString ?? "-")"
             guard let httpResponse = response as? HTTPURLResponse else {
                 debugString += "\nCODE: n\\a - timeout ?!?"
-                log(string: debugString, logType: .error)
+                await log(string: debugString, logType: .error)
                 throw SHManager.Error.unkownError
             }
             debugString += "\nCODE: \(httpResponse.statusCode)"
@@ -506,7 +508,7 @@ public actor SHManager: ObservableObject {
             else {
                 debugString += "\nDATA: \(String(data: data, encoding: .utf8) ?? "n\\a")"
             }
-            log(string: debugString, logType: .default)
+            await log(string: debugString, logType: .default)
         #endif
         
         return (data, request)
