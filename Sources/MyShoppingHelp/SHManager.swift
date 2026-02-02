@@ -442,11 +442,27 @@ public actor SHManager: ObservableObject {
         let accessToken: String = try await withCheckedThrowingContinuation { continuation in
             SHSessionManager.shared.currentSession?.performAction(freshTokens: { accessToken, refreshToken, error in
                 if let error {
+                    #if DEBUG
+                    // Log to console
+                    self.log(string: "Cannot refresh token. Reason:\n\n\(error)", logType: .error)
+                    #endif
+                    
+                    // Logout due to error
+                    SHSessionManager.shared.logout()
+                    
                     continuation.resume(throwing: error)
                     return
                 }
                 
                 guard let accessToken else {
+                    #if DEBUG
+                    // Log to console
+                    self.log(string: "Cannot refresh token. Unkown error", logType: .error)
+                    #endif
+                    
+                    // Logout due to error
+                    SHSessionManager.shared.logout()
+                    
                     continuation.resume(throwing: SHManager.Error.notAuthorized)
                     return
                 }
