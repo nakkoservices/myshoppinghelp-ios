@@ -99,7 +99,7 @@ public class SHSessionManager: ObservableObject, @unchecked Sendable {
         currentAuthorizationFlowCompletionBlock = nil
     }
     
-    public func tryLogin(with presentingViewController: UIViewController, completion: ((Bool) -> Void)?) {
+    public func tryLogin(with presentingViewController: UIViewController, completion: ((Bool) -> Void)? = nil) {
         guard let clientId = configuration?.clientId else { return }
         guard let shoppingHelpConfiguration = configuration else { return }
         guard let issuer = URL(string: "https://auth.myshopping.help") else { return }
