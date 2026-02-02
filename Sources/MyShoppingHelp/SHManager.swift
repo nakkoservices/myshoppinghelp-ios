@@ -437,16 +437,11 @@ public actor SHManager: ObservableObject {
         }
     }
     
-    @discardableResult
+    @concurrent @discardableResult
     private func getData(at path: String, queryItems: [URLQueryItem] = [], httpMethod: String = "GET", payload: (any Encodable)? = nil) async throws -> (Data, URLRequest) {
         let accessToken: String = try await withCheckedThrowingContinuation { continuation in
             SHSessionManager.shared.currentSession?.performAction(freshTokens: { accessToken, refreshToken, error in
                 if let error {
-                    #if DEBUG
-                    // Log to console
-                    self.log(string: "Cannot refresh token. Reason:\n\n\(error)", logType: .error)
-                    #endif
-                    
                     // Logout due to error
                     SHSessionManager.shared.logout()
                     
@@ -455,11 +450,6 @@ public actor SHManager: ObservableObject {
                 }
                 
                 guard let accessToken else {
-                    #if DEBUG
-                    // Log to console
-                    self.log(string: "Cannot refresh token. Unkown error", logType: .error)
-                    #endif
-                    
                     // Logout due to error
                     SHSessionManager.shared.logout()
                     
