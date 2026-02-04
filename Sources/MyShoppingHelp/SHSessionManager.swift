@@ -67,7 +67,10 @@ public class SHSessionManager: ObservableObject, @unchecked Sendable {
     
     func configure(configuration: SHManagerConfiguration) {
         self.configuration = configuration
-        
+        reloadSession()
+    }
+    
+    func reloadSession() {
         do {
             if let sessionString = keychain.get("ShoppingHelpSession"),
                let sessionData = Data(base64Encoded: sessionString),
