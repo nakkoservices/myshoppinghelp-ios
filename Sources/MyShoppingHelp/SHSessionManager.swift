@@ -70,7 +70,7 @@ public class SHSessionManager: ObservableObject, @unchecked Sendable {
         reloadSession()
     }
     
-    func reloadSession() {
+    public func reloadSession() {
         do {
             if let sessionString = keychain.get("ShoppingHelpSession"),
                let sessionData = Data(base64Encoded: sessionString),
