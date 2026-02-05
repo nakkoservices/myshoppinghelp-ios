@@ -341,7 +341,7 @@ public struct SHRecipeMetadata: Decodable {
     
 }
 
-public actor SHManager: ObservableObject {
+public actor SHManager {
     
     public static let shared = SHManager()
     

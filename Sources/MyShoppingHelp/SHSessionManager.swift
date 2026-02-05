@@ -10,30 +10,33 @@ import AppAuth
 import JWTDecode
 import KeychainSwift
 
-public class SHSessionManager: ObservableObject, @unchecked Sendable {
+@Observable public class SHSessionManager: @unchecked Sendable {
     
     public static let shared = SHSessionManager()
     
     private var configuration: SHManagerConfiguration? = nil
     
-    private lazy var keychain: KeychainSwift = {
-        let keychain = KeychainSwift()
-        keychain.accessGroup = configuration?.appGroupId
-        return keychain
-    }()
+    private var _keychain: KeychainSwift? = nil
+    private func keychain() -> KeychainSwift {
+        if _keychain == nil {
+            _keychain = KeychainSwift()
+            _keychain?.accessGroup = configuration?.appGroupId
+        }
+        return _keychain!
+    }
     
-    @Published public private(set) var currentSession: OIDAuthState? = nil {
+    public private(set) var currentSession: OIDAuthState? = nil {
         didSet {
             if let currentSession {
                 do {
                     let data = try NSKeyedArchiver.archivedData(withRootObject: currentSession, requiringSecureCoding: false)
-                    keychain.set(data.base64EncodedString(), forKey: "ShoppingHelpSession")
+                    keychain().set(data.base64EncodedString(), forKey: "ShoppingHelpSession")
                 } catch {
                     print("Could not save session. Reason: \(error.localizedDescription)")
                 }
             }
             else {
-                keychain.delete("ShoppingHelpSession")
+                keychain().delete("ShoppingHelpSession")
             }
             
             if oldValue == nil, currentSession != nil {
@@ -45,7 +48,7 @@ public class SHSessionManager: ObservableObject, @unchecked Sendable {
         }
     }
     
-    @Published public private(set) var isBusy: Bool = false
+    public private(set) var isBusy: Bool = false
     
     private(set) var currentAuthorizationFlow: OIDExternalUserAgentSession? = nil
     private var currentAuthorizationFlowCompletionBlock: ((Bool) -> Void)? = nil
@@ -72,7 +75,7 @@ public class SHSessionManager: ObservableObject, @unchecked Sendable {
     
     public func reloadSession() {
         do {
-            if let sessionString = keychain.get("ShoppingHelpSession"),
+            if let sessionString = keychain().get("ShoppingHelpSession"),
                let sessionData = Data(base64Encoded: sessionString),
                let session = try NSKeyedUnarchiver.unarchivedObject(ofClasses: [OIDAuthState.self], from: sessionData) as? OIDAuthState {
                 self.currentSession = session
