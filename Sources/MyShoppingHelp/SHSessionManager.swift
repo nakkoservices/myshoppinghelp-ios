@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import AppAuth
 import JWTDecode
 import KeychainSwift
@@ -41,9 +42,11 @@ import KeychainSwift
             
             if oldValue == nil, currentSession != nil {
                 NotificationCenter.default.post(name: SHSessionManager.sessionDidChange, object: self)
+                isLoggedInSubject.send(isLoggedIn)
             }
             else if oldValue != nil, currentSession == nil {
                 NotificationCenter.default.post(name: SHSessionManager.sessionDidChange, object: self)
+                isLoggedInSubject.send(isLoggedIn)
             }
         }
     }
@@ -53,6 +56,7 @@ import KeychainSwift
     private(set) var currentAuthorizationFlow: OIDExternalUserAgentSession? = nil
     private var currentAuthorizationFlowCompletionBlock: ((Bool) -> Void)? = nil
     
+    public var isLoggedInSubject = PassthroughSubject<Bool, Never>()
     public var isLoggedIn: Bool {
         currentSession?.isAuthorized ?? false
     }
