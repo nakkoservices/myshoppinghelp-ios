@@ -448,6 +448,10 @@ public actor SHManager {
                     SHSessionManager.shared.logout()
                     
                     continuation.resume(throwing: error)
+                    
+                    // Post notification
+                    NotificationCenter.default.post(name: SHManager.couldNotRefreshAccessToken, object: error)
+                    
                     return
                 }
                 
@@ -455,7 +459,11 @@ public actor SHManager {
                     // Logout due to error
                     SHSessionManager.shared.logout()
                     
-                    continuation.resume(throwing: SHManager.Error.notAuthorized)
+                    continuation.resume(throwing: SHManager.Error.refreshError)
+                    
+                    // Post notification
+                    NotificationCenter.default.post(name: SHManager.couldNotRefreshAccessToken, object: SHManager.Error.refreshError)
+                    
                     return
                 }
                 
@@ -538,8 +546,15 @@ public extension SHManager {
     
     enum Error: Swift.Error {
         case notAuthorized
+        case refreshError
         case unkownError
     }
+    
+}
+
+public extension SHManager {
+    
+    static let couldNotRefreshAccessToken: Notification.Name = .init(rawValue: "SHManagerCouldNotRefreshAccessToken")
     
 }
 
