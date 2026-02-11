@@ -16,6 +16,7 @@ import KeychainSwift
     public static let shared = SHSessionManager()
     
     private var configuration: SHManagerConfiguration? = nil
+    private var cancellables: Set<AnyCancellable> = []
     
     private var _keychain: KeychainSwift? = nil
     private func keychain() -> KeychainSwift {
@@ -70,7 +71,21 @@ import KeychainSwift
         return try? decode(jwt: currentToken).subject
     }
     
-    private init() { }
+    private init() {
+        NotificationCenter.default.publisher(for: .NSExtensionHostDidBecomeActive)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.reloadSession()
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.reloadSession()
+            }
+            .store(in: &cancellables)
+    }
     
     func configure(configuration: SHManagerConfiguration) {
         self.configuration = configuration
