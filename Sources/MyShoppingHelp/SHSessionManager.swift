@@ -92,7 +92,7 @@ import KeychainSwift
         reloadSession()
     }
     
-    public func reloadSession() {
+    private func reloadSession() {
         do {
             if let sessionString = keychain().get("ShoppingHelpSession"),
                let sessionData = Data(base64Encoded: sessionString),
