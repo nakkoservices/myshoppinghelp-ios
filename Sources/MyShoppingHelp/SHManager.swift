@@ -28,9 +28,9 @@ public struct SHList: Decodable, Identifiable, Sendable {
     public let checkboxes: Bool
     public let quantities: Bool
     public let name: String
+    public let attributes: [String: String]
     
-    private let attributes: [String: String]?
-    public var attribution: String? { attributes?["attribution"] }
+    public var attribution: String? { attributes["attribution"] }
     
     enum CodingKeys: CodingKey {
         case id
@@ -63,7 +63,7 @@ public struct SHList: Decodable, Identifiable, Sendable {
         self.quantities = try container.decode(Bool.self, forKey: .quantities)
         self.name = try container.decode(String.self, forKey: .name)
         
-        self.attributes = try? container.decodeIfPresent([String: String].self, forKey: .attributes)
+        self.attributes = (try? container.decodeIfPresent([String: String].self, forKey: .attributes)) ?? [:]
     }
     
 }
@@ -93,7 +93,7 @@ public struct SHListUpdatePayload: Encodable, Sendable {
     public let checkboxes: Bool
     public let quantities: Bool
     public var name: String
-    public let attributes: [String: String]?
+    public let attributes: [String: String]
     
     public init(list: SHList, attributes: [String: String]) {
         self.ref = list.ref
@@ -101,7 +101,7 @@ public struct SHListUpdatePayload: Encodable, Sendable {
         self.checkboxes = list.checkboxes
         self.quantities = list.quantities
         self.name = list.name
-        self.attributes = attributes.isEmpty ? nil : attributes
+        self.attributes = attributes
     }
     
 }
