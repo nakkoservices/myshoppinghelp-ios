@@ -20,7 +20,10 @@ import SimpleKeychain
     
     @ObservationIgnored
     private lazy var keychain: SimpleKeychain = {
-        SimpleKeychain(accessGroup: configuration?.appGroupId)
+        guard let configuration else {
+            fatalError("SHManagerConfiguration not set!")
+        }
+        return SimpleKeychain(service: configuration.bundleId, accessGroup: configuration.appGroupId)
     }()
     
     public private(set) var currentSession: OIDAuthState? = nil {
