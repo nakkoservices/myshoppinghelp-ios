@@ -25,10 +25,14 @@ public struct SHList: Decodable, Identifiable, Sendable {
     public let ref: SHRef?
     public let items: [SHListItem]?
     
+    private let attributes: [String: String]?
+    public var attribution: String? { attributes?["attribution"] }
+    
     enum CodingKeys: CodingKey {
         case id
         case ref
         case items
+        case attributes
     }
     
     public init(from decoder: any Decoder) throws {
@@ -45,6 +49,7 @@ public struct SHList: Decodable, Identifiable, Sendable {
             }
         }
         self.items = decodedItems.isEmpty ? nil : decodedItems
+        self.attributes = try? container.decodeIfPresent([String: String].self, forKey: .attributes)
     }
     
 }
@@ -380,7 +385,7 @@ public actor SHManager {
         }
         return try await getData(at: "lists/\(listId)")
     }
-    
+        
     public func createList(ref: SHRef, withUniqueItems uniqueItems: Bool = true, checkboxes: Bool = false, quantities: Bool = false) async throws -> SHList.ID {
         guard SHSessionManager.shared.isLoggedIn else {
             throw SHManager.Error.notAuthorized
@@ -388,6 +393,13 @@ public actor SHManager {
         struct CreateListResult: Decodable { let id: SHList.ID }
         let result: CreateListResult = try await getData(at: "lists", httpMethod: "POST", payload: SHListCreatePayload(ref: ref, uniqueItems: uniqueItems, checkboxes: checkboxes, quantities: quantities))
         return result.id
+    }
+    
+    public func updateListAttributes(listId: SHList.ID, attributes: [String: String]) async throws {
+        guard SHSessionManager.shared.isLoggedIn else {
+            throw SHManager.Error.notAuthorized
+        }
+        try await getData(at: "lists/\(listId)", httpMethod: "PUT", payload: ["attributes": attributes])
     }
     
     public func deleteList(listId: SHList.ID) async throws {
