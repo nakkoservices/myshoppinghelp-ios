@@ -18,13 +18,10 @@ import SimpleKeychain
     private var configuration: SHManagerConfiguration? = nil
     private var cancellables: Set<AnyCancellable> = []
     
-    private var _keychain: SimpleKeychain? = nil
-    private var keychain: SimpleKeychain {
-        if _keychain == nil {
-            _keychain = SimpleKeychain(accessGroup: configuration?.appGroupId)
-        }
-        return _keychain!
-    }
+    @ObservationIgnored
+    private lazy var keychain: SimpleKeychain = {
+        SimpleKeychain(accessGroup: configuration?.appGroupId)
+    }()
     
     public private(set) var currentSession: OIDAuthState? = nil {
         didSet {
