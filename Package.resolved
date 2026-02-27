@@ -1,5 +1,5 @@
 {
-  "originHash" : "3c6ec19d6c941867e2dab0a8e6dde26261a0d6dffdf2125ae0ffe29b49b573df",
+  "originHash" : "d94a54e5ba82a992d448a43ecd8b153bd289bc0574e05d140947b88e074550b2",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -20,12 +20,12 @@
       }
     },
     {
-      "identity" : "keychain-swift",
+      "identity" : "simplekeychain",
       "kind" : "remoteSourceControl",
-      "location" : "https://www.github.com/evgenyneu/keychain-swift.git",
+      "location" : "https://github.com/auth0/SimpleKeychain.git",
       "state" : {
-        "revision" : "5e1b02b6a9dac2a759a1d5dbc175c86bd192a608",
-        "version" : "24.0.0"
+        "revision" : "776c4a6db74d5c6c143974be91c383680d468630",
+        "version" : "1.3.0"
       }
     }
   ],

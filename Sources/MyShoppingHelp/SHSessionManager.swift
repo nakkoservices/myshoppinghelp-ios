@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import AppAuth
 import JWTDecode
-import KeychainSwift
+import SimpleKeychain
 
 @Observable public class SHSessionManager: @unchecked Sendable {
     
@@ -18,11 +18,10 @@ import KeychainSwift
     private var configuration: SHManagerConfiguration? = nil
     private var cancellables: Set<AnyCancellable> = []
     
-    private var _keychain: KeychainSwift? = nil
-    private func keychain() -> KeychainSwift {
+    private var _keychain: SimpleKeychain? = nil
+    private var keychain: SimpleKeychain {
         if _keychain == nil {
-            _keychain = KeychainSwift()
-            _keychain?.accessGroup = configuration?.appGroupId
+            _keychain = SimpleKeychain(accessGroup: configuration?.appGroupId)
         }
         return _keychain!
     }
@@ -32,13 +31,13 @@ import KeychainSwift
             if let currentSession {
                 do {
                     let data = try NSKeyedArchiver.archivedData(withRootObject: currentSession, requiringSecureCoding: false)
-                    keychain().set(data.base64EncodedString(), forKey: "ShoppingHelpSession")
+                    try keychain.set(data, forKey: "ShoppingHelpSession")
                 } catch {
                     print("Could not save session. Reason: \(error.localizedDescription)")
                 }
             }
             else {
-                keychain().delete("ShoppingHelpSession")
+                try? keychain.deleteItem(forKey: "ShoppingHelpSession")
             }
             
             if oldValue == nil, currentSession != nil {
@@ -94,9 +93,8 @@ import KeychainSwift
     
     private func reloadSession() {
         do {
-            if let sessionString = keychain().get("ShoppingHelpSession"),
-               let sessionData = Data(base64Encoded: sessionString),
-               let session = try NSKeyedUnarchiver.unarchivedObject(ofClasses: [OIDAuthState.self], from: sessionData) as? OIDAuthState {
+            let sessionData = try keychain.data(forKey: "ShoppingHelpSession")
+            if let session = try NSKeyedUnarchiver.unarchivedObject(ofClasses: [OIDAuthState.self], from: sessionData) as? OIDAuthState {
                 self.currentSession = session
             }
             else {
