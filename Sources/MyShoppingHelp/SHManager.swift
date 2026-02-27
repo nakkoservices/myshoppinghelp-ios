@@ -24,6 +24,10 @@ public struct SHList: Decodable, Identifiable, Sendable {
     public let id: String
     public let ref: SHRef?
     public let items: [SHListItem]?
+    public let uniqueItems: Bool
+    public let checkboxes: Bool
+    public let quantities: Bool
+    public let name: String
     
     private let attributes: [String: String]?
     public var attribution: String? { attributes?["attribution"] }
@@ -32,6 +36,10 @@ public struct SHList: Decodable, Identifiable, Sendable {
         case id
         case ref
         case items
+        case uniqueItems
+        case checkboxes
+        case quantities
+        case name
         case attributes
     }
     
@@ -49,6 +57,12 @@ public struct SHList: Decodable, Identifiable, Sendable {
             }
         }
         self.items = decodedItems.isEmpty ? nil : decodedItems
+        
+        self.checkboxes = try container.decode(Bool.self, forKey: .checkboxes)
+        self.uniqueItems = try container.decode(Bool.self, forKey: .uniqueItems)
+        self.quantities = try container.decode(Bool.self, forKey: .quantities)
+        self.name = try container.decode(String.self, forKey: .name)
+        
         self.attributes = try? container.decodeIfPresent([String: String].self, forKey: .attributes)
     }
     
@@ -68,6 +82,26 @@ public struct SHListCreatePayload: Encodable, Sendable {
         self.uniqueItems = uniqueItems
         self.checkboxes = checkboxes
         self.quantities = quantities
+    }
+    
+}
+
+public struct SHListUpdatePayload: Encodable, Sendable {
+    
+    public let ref: SHRef?
+    public let uniqueItems: Bool
+    public let checkboxes: Bool
+    public let quantities: Bool
+    public var name: String
+    public let attributes: [String: String]?
+    
+    public init(list: SHList, attributes: [String: String]) {
+        self.ref = list.ref
+        self.uniqueItems = list.uniqueItems
+        self.checkboxes = list.checkboxes
+        self.quantities = list.quantities
+        self.name = list.name
+        self.attributes = attributes.isEmpty ? nil : attributes
     }
     
 }
@@ -395,11 +429,11 @@ public actor SHManager {
         return result.id
     }
     
-    public func updateListAttributes(listId: SHList.ID, attributes: [String: String]) async throws {
+    public func updateListAttributes(list: SHList, attributes: [String: String]) async throws {
         guard SHSessionManager.shared.isLoggedIn else {
             throw SHManager.Error.notAuthorized
         }
-        try await getData(at: "lists/\(listId)", httpMethod: "PUT", payload: ["attributes": attributes])
+        try await getData(at: "lists/\(list.id)", httpMethod: "PUT", payload: SHListUpdatePayload(list: list, attributes: attributes))
     }
     
     public func deleteList(listId: SHList.ID) async throws {
