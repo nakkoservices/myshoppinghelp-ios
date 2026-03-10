@@ -11,8 +11,8 @@ let package = Package(
         .library(name: "MyShoppingHelp", targets: ["MyShoppingHelp"]),
     ],
     dependencies: [
-        .package(url: "https://www.github.com/openid/AppAuth-iOS.git", .upToNextMajor(from: "1.7.5")),
-        .package(url: "https://www.github.com/auth0/JWTDecode.swift.git", .upToNextMajor(from: "3.2.0")),
+        .package(url: "https://www.github.com/openid/AppAuth-iOS.git", .upToNextMajor(from: "2.0.0")),
+        .package(url: "https://www.github.com/auth0/JWTDecode.swift.git", .upToNextMajor(from: "4.0.0")),
         .package(url: "https://github.com/auth0/SimpleKeychain.git", .upToNextMajor(from: "1.3.0"))
     ],
     targets: [
