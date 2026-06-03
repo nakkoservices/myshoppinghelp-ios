@@ -30,7 +30,8 @@ public struct SHList: Decodable, Identifiable, Sendable {
     public let name: String
     public let attributes: [String: String]
     
-    public var attribution: String? { attributes["attribution"] }
+    public var attributionId: String? { attributes["attributionId"] }
+    public var attributionName: String? { attributes["attributionName"] }
     
     enum CodingKeys: CodingKey {
         case id
